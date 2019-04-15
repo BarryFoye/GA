@@ -24,7 +24,7 @@ class World {
       Vehicle v = population.get(i);
       v.run();
       v.seek(food);
-      v.eat(food);
+      //v.eat(food);
 
       if (v.dead()) {
       }

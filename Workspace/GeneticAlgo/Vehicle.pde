@@ -42,6 +42,8 @@ class Vehicle {
   }
 
   boolean dead() {
+    
+    return false;
   }
 
   void setTarget(Food newTarget) {
@@ -55,8 +57,13 @@ class Vehicle {
   }
 
   void seek(Food f) {
-    //2 modes: wander and charge
-    
+    // 2 modes: wander and charge
+    // wanderStrategy returns a desired PVector
+    // wandering needs to follow some progressive strategies
+    // these couuld be like favouring left movements or more complex like avoiding or arriving
+    // chargeStrategy returns a desired PVector
+    // charge needs to have food aquistion strategies
+    // In future there may be "perils" when approaching foods 
     
     //boolean consume = false;
     //PVector desired = PVector.sub(target, location);
