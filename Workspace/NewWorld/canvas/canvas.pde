@@ -9,6 +9,7 @@ void setup(){
 }
 
 void draw(){
-  background(50);
-  world.run();  
+  background(255);
+  world.run();
+  //noLoop();
 }
