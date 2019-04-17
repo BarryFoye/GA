@@ -5,6 +5,7 @@ class Vehicle {
   float r;
   float maxForce;
   float maxSpeed;
+  float health;
 
   Vehicle() {
     position = new PVector(floor(random(width)), floor(random(height)));
@@ -14,6 +15,7 @@ class Vehicle {
     r = 5;
     maxForce = 0.03;
     maxSpeed = 1;
+    health = MAX_HEALTH;
   }
 
   void run() {
@@ -27,7 +29,8 @@ class Vehicle {
     velocity.limit(maxSpeed);
     position.add(velocity);
     acceleration.mult(0);
-    println(acceleration);
+    health -= 0.01;
+    println(health);
   }
 
   void borders() {
@@ -46,7 +49,10 @@ class Vehicle {
     }
   }
 
-
+  void addHealth(float nutrition) {
+    health += nutrition;
+    if (health > MAX_HEALTH) health = MAX_HEALTH;
+  }
 
   void applyForce(PVector force) {
     acceleration.add(force);

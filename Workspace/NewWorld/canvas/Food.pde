@@ -15,9 +15,11 @@ class Food {
     show();
   }
 
-  void checkCollision(PVector vehiclePos) {
-    if (dist(vehiclePos.x, vehiclePos.y, position.x, position.y) < r) {
+  void checkCollision(Vehicle vehicle) {
+    PVector f = PVector.sub(position, vehicle.position);
+    if (f.mag() < r) {
       eaten = true;
+      vehicle.addHealth(nutrition);
     }
   }
 

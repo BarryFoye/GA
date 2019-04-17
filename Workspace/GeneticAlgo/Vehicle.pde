@@ -16,9 +16,12 @@ class Vehicle {
   Food target;
   float targetDistance;
   float consumeR;
+  
+  //float xoff;
+  //float yoff ;
 
   // Senses
-  //int visionRadius = 10;
+  float visionRadius = 100;
 
   Vehicle(float x, float y) {
     acceleration = new PVector(0, 0);
@@ -26,10 +29,12 @@ class Vehicle {
     location = new PVector(x, y);
     r = 5.0;
     maxForce = 0.01;
-    maxSpeed = 1;
+    maxSpeed = 0.01;
     target = null;
     history = new ArrayList<PVector>();
     consumeR = 1;
+    //xoff = 0.0;
+    //yoff = 0.0;
   }
 
   void run() {
@@ -42,7 +47,7 @@ class Vehicle {
   }
 
   boolean dead() {
-    
+
     return false;
   }
 
@@ -56,7 +61,7 @@ class Vehicle {
     return this.target;
   }
 
-  void seek(Food f) {
+  void seek(Food targets) {
     // 2 modes: wander and charge
     // wanderStrategy returns a desired PVector
     // wandering needs to follow some progressive strategies
@@ -64,7 +69,45 @@ class Vehicle {
     // chargeStrategy returns a desired PVector
     // charge needs to have food aquistion strategies
     // In future there may be "perils" when approaching foods 
-    
+    for ( int i = targets.foods.size()-1; i >=0; i--) {
+      
+      PVector desired = PVector.sub(targets.foods.get(i).position, location);
+      float d = location.dist(desired);
+      if (d < r) {
+        //eat food TODO: The range may need teweaking
+        targets.foods.get(i).setEaten(true);
+        //desired = PVector.sub(new PVector(random(width, height), random(width, height)) , location);
+        //desired.normalize();
+        //desired.mult(maxSpeed);
+        //PVector steeringForce = PVector.sub(desired, velocity);
+        //steeringForce.limit(maxForce);
+        //// apply
+        //applyForce(steeringForce);
+      } else if (d < visionRadius) {
+        target = targets.foods.get(i);
+        desired = PVector.sub(target.position, location);
+        //we can see the food and will charge for it
+        desired.normalize();
+        desired.mult(maxSpeed);
+        PVector steeringForce = PVector.sub(desired, velocity);
+        steeringForce.limit(maxForce);
+        // apply
+        applyForce(steeringForce);
+      //} else {
+      //  // wander around - NOT TESTED
+      //  //xoff = xoff + random(-0.05, 0.05);
+      //  //yoff = yoff + random(-0.05, 0.05);
+      //  //location.x += xoff;
+      //  //location.y += yoff;
+      //  desired = PVector.sub(new PVector(width/2, height/2) , location);
+      //  desired.normalize();
+      //  desired.mult(maxSpeed);
+      //  PVector steeringForce = PVector.sub(desired, velocity);
+      //  steeringForce.limit(maxForce);
+      //  // apply
+      //  applyForce(steeringForce);
+      //}
+    }}
     //boolean consume = false;
     //PVector desired = PVector.sub(target, location);
     //if (desired.mag() < consumeR) {

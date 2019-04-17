@@ -1,10 +1,11 @@
 class Food {
-  ArrayList<PVector> food;
-  int arrayID;
+  ArrayList<Food> foods;
   PVector position; 
   float size;
   float mass;
-  color c;  
+  color c; 
+  boolean eaten = false; // TODO: // Each food should keep a flag to say if it is eaten
+  // If true it should be removed
 
 
   Food() {
@@ -14,29 +15,40 @@ class Food {
     c = color(150, 204, 0);
   }
 
-  Food(int id, float x, float y) {
-    arrayID = id;
+  Food(float x, float y) {
     position = new PVector(x, y);
-    size = 0;
-    mass = 1;
+    size = 10;
+    eaten = false;
     c = color(150, 204, 0);
   }
-  
-    Food(int quantity) {
-    food = new ArrayList<PVector>();
-    for(int i = 0; i < quantity; i++){
-      food.add(new PVector(floor(random(BORDER, width-BORDER)), floor(random(BORDER, height-BORDER)))); 
+
+  Food(int quantity) {
+    foods = new ArrayList<Food>();
+    for (int i = 0; i < quantity; i++) {
+      //foods.add(new Food(floor(random(BORDER, width-BORDER)), floor(random(BORDER, height-BORDER))));
+      foods.add(new Food(width/2, height/2));
     }
   }
 
   void display() {
     stroke(0);
-    fill(c);
+    fill(50);
     ellipse(position.x, position.y, this.size, this.size);
   }
-  
-  void run(){
-    
+
+  void run() {
+    for(int i = foods.size() - 1; i >= 0; i--){
+      if(foods.get(i).isEaten()){
+        foods.remove(i);
+      }      
+    }
+    for(Food food : foods){
+      food.display();
+    }
+    // food replenishment 
+    if(random(0.0, 1.0) < 0.1){
+      foods.add(new Food(floor(random(BORDER, width-BORDER)), floor(random(BORDER, height-BORDER))));
+    }
   }
 
 
@@ -47,8 +59,12 @@ class Food {
   void setSize(float size) {
     this.size = size;
   }
+
+  boolean isEaten() {
+    return eaten;
+  }
   
-  int getID(){
-    return arrayID;
+    void setEaten(boolean isEaten) {
+    this.eaten = isEaten;
   }
 }

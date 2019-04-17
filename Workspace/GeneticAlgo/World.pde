@@ -19,12 +19,12 @@ class World {
 
   void run() {
     food.run();
-
     for (int i = population.size()- 1; i >= 0; i--) {
       Vehicle v = population.get(i);
-      v.run();
+      
       v.seek(food);
-      //v.eat(food);
+      v.run();
+      v.display();
 
       if (v.dead()) {
       }
