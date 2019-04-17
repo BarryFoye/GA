@@ -1,5 +1,6 @@
 Vehicle vehicle;
 Food food;
+int BORDER = 20;
 
 class World {
  World(){
@@ -10,6 +11,7 @@ class World {
  void run(){
    vehicle.run();
    food.run();
+   food.checkCollision(vehicle.position);
  }
   
 }

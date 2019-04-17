@@ -14,9 +14,17 @@ class Food {
   void run() {
     show();
   }
-  
-  void show(){
-    fill(78, 95);
-    circle(position.x, position.y, r); 
+
+  void checkCollision(PVector vehiclePos) {
+    if (dist(vehiclePos.x, vehiclePos.y, position.x, position.y) < r) {
+      eaten = true;
+    }
+  }
+
+  void show() {
+    if (!eaten) {
+      fill(78, 95);
+      circle(position.x, position.y, r);
+    }
   }
 }

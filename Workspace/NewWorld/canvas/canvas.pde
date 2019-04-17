@@ -10,6 +10,5 @@ void setup(){
 
 void draw(){
   background(50);
-  world.run();
-  
+  world.run();  
 }
