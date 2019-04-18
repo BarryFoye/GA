@@ -1,8 +1,9 @@
+/** Constants **/
 int BORDER = 20;
 int MAX_FOOD = 10;
-int MAX_POPULATION = 10;
+int MAX_POPULATION = 1;
 float MAX_HEALTH = 100;
-
+/** Things **/
 ArrayList<Vehicle> vehicle;
 ArrayList<Food> food;
 
@@ -20,18 +21,28 @@ class World {
   }
 
   void run() {
-    for (Vehicle v : vehicle) {
-      v.run();
-      for (Food f : food) {        
+    for (Food f : food) {   
+      f.run();
+    }
+    for (Vehicle v : vehicle) {      
+      for (Food f : food) {
+        //v.seek(f);        
         f.checkCollision(v);
-        f.run();
       }
+      v.run();
     }
     for (int i = food.size() - 1; i >= 0; i--) {
       if (food.get(i).eaten == true) food.remove(i);
     }
     for (int i = vehicle.size() - 1; i >= 0; i--) {
       if (vehicle.get(i).alive == false) vehicle.remove(i);
+    }
+    addFood();
+  }
+  
+  void addFood(){
+    if(random(0.0, 1.0) < 0.01){
+      food.add(new Food());
     }
   }
 }
