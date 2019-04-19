@@ -2,17 +2,18 @@ class Vehicle {
   PVector position; // Where this Vehicle is in the world
   PVector velocity; // the velocity of the Vehicle
   PVector acceleration; // this Vehicles capacity to change speed at a certain rate
+  Food food;
   float r; // a "radius" of this vehicle, used to draw a triangular representation
   float visionRadius; // represents how far this Vehicle can see 
   float maxForce; // a limit to the force that can be applied to this vehicle
   float maxSpeed; // a limit to the maximum speed this Vehicle can travel
   float health; // how healthy this Vehicle is
+  float targetDistance;
   boolean alive; // this vehicle keeps 
-  boolean targetAquired; // if food is in range then this Vehicle shoud steer towards it only
 
   Vehicle() {
     position = new PVector(floor(random(width)), floor(random(height)));
-    velocity = new PVector(400, 400);
+    velocity = new PVector(width, height);
     acceleration = new PVector(floor(random(width)), floor(random(height)));
     r = 5;
     visionRadius = 60;
@@ -20,7 +21,8 @@ class Vehicle {
     maxSpeed = 1;
     health = MAX_HEALTH;
     alive = true;
-    targetAquired = false;
+    food = null;
+    targetDistance = width*height;
   }
 
   void run() {
@@ -30,6 +32,7 @@ class Vehicle {
   }
 
   void update() {
+    seek();
     velocity.add(acceleration);
     velocity.limit(maxSpeed);
     position.add(velocity);
@@ -37,18 +40,36 @@ class Vehicle {
     checkHealth();
   }
 
-  void seek(Food food){
+  void search(Food f) {
+    PVector newTarget = PVector.sub(f.position, position);
+    float d = newTarget.mag();
+    if (d < visionRadius) { //if this Vehicle can see the food
+      if (d < targetDistance) { // if the current food is further away from this Vehicle than th enew food 
+        println("target aquired");
+        food = f;
+      }
+    }
+  }
+
+
+  void seek() {
     // vehicle searches for food
-    PVector desired = PVector.sub(position, food.position);
-    if(desired.mag() < visionRadius){
-      println("target aquired");
-      targetAquired = true;
+    if (food != null) {
+      PVector desired = PVector.sub(food.position, position);
+      println("Food");
       desired.normalize();
       desired.mult(maxSpeed);
       PVector steeringForce = PVector.sub(desired, velocity);
       steeringForce.limit(maxForce);
       // apply
       applyForce(steeringForce);
+    } else {
+      // implement wander
+      PVector cast = PVector.add(position, velocity);
+      cast.normalize();
+      cast.mult(floor(random(0, 10)));
+      println("cast: " + cast + " position: " + position + " velocity: " + velocity);
+      println("PI: " + PI + " PI/2: " + PI/2 + " PI/4: " + PI/4);
     }
   }
 
@@ -80,8 +101,7 @@ class Vehicle {
   void addHealth(float nutrition) {
     health += nutrition;
     if (health > MAX_HEALTH) health = MAX_HEALTH;
-    targetAquired = false;
-    //applyForce(new PVector(floor(random(-20.0, 20.0)), floor(random(-20.0, 20.0))));//###############
+    food = null;
   }
 
   void applyForce(PVector force) {    
@@ -94,11 +114,16 @@ class Vehicle {
       float colourG = map(health, 0, MAX_HEALTH, 0, 255);
       float colourB = map(health, 0, MAX_HEALTH, 50, 150);
       float theta = velocity.heading() + PI/2;
-      fill(colourR, colourG, colourB);
-      noStroke();
       pushMatrix();
       translate(position.x, position.y);
       rotate(theta);
+      stroke(colourR, colourG, colourB);
+      strokeWeight(3);
+      line(0, visionRadius/2, 0, -visionRadius/2);
+      arc(0, 0, visionRadius*2, visionRadius*2, PI, TWO_PI);
+      strokeWeight(1);
+      stroke(1);
+      fill(colourR, colourG, colourB);
       beginShape();
       vertex(0, -r*2);
       vertex(-r, r*2);

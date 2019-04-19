@@ -1,6 +1,6 @@
 /** Constants **/
 int BORDER = 20;
-int MAX_FOOD = 10;
+int MAX_FOOD = 2;
 int MAX_POPULATION = 1;
 float MAX_HEALTH = 100;
 /** Things **/
@@ -26,7 +26,7 @@ class World {
     }
     for (Vehicle v : vehicle) {      
       for (Food f : food) {
-        //v.seek(f);        
+        v.search(f);        
         f.checkCollision(v);
       }
       v.run();
