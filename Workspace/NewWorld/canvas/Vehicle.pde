@@ -2,7 +2,7 @@ class Vehicle {
   PVector position; // Where this Vehicle is in the world
   PVector velocity; // the velocity of the Vehicle
   PVector acceleration; // this Vehicles capacity to change speed at a certain rate
-  Food food;
+  Food food; // target food
   float r; // a "radius" of this vehicle, used to draw a triangular representation
   float visionRadius; // represents how far this Vehicle can see 
   float maxForce; // a limit to the force that can be applied to this vehicle
@@ -10,11 +10,17 @@ class Vehicle {
   float health; // how healthy this Vehicle is
   float targetDistance;
   boolean alive; // this vehicle keeps 
+  int count; // used to control the wandering frequency
+  int wanderFrequency; // used to control the number of frames per update
+  int vID; // vehicle ID for test purposes
+  ArrayList<PVector> history;
 
-  Vehicle() {
+  Vehicle(int id) {
     position = new PVector(floor(random(width)), floor(random(height)));
     velocity = new PVector(width, height);
     acceleration = new PVector(floor(random(width)), floor(random(height)));
+    history = new ArrayList<PVector>();
+    history.add(position);
     r = 5;
     visionRadius = 60;
     maxForce = 0.3;
@@ -23,6 +29,9 @@ class Vehicle {
     alive = true;
     food = null;
     targetDistance = width*height;
+    count = 0;
+    vID = id;
+    wanderFrequency = floor(random(30, 120));
   }
 
   void run() {
@@ -36,6 +45,12 @@ class Vehicle {
     velocity.add(acceleration);
     velocity.limit(maxSpeed);
     position.add(velocity);
+    if (history.size() > 50) {
+      history.remove(0);
+      history.add(position);
+    } else {
+      history.add(position);
+    }
     acceleration.mult(0);
     checkHealth();
   }
@@ -45,18 +60,25 @@ class Vehicle {
     float d = newTarget.mag();
     if (d < visionRadius) { //if this Vehicle can see the food
       if (d < targetDistance) { // if the current food is further away from this Vehicle than th enew food 
-        println("target aquired");
         food = f;
       }
     }
   }
 
+  void checkCollision(Food f) {
+    // Food keeps track of whether it has been eaten
+    PVector fNew = PVector.sub(position, f.position);
+    if (fNew.mag() < f.r * 0.85) {      
+      f.eaten = true;
+      // Vehicles health is replenished 
+      addHealth(f.nutrition);
+    }
+  }
 
   void seek() {
     // vehicle searches for food
-    if (food != null) {
+    if (food != null && !food.eaten) {
       PVector desired = PVector.sub(food.position, position);
-      println("Food");
       desired.normalize();
       desired.mult(maxSpeed);
       PVector steeringForce = PVector.sub(desired, velocity);
@@ -65,11 +87,20 @@ class Vehicle {
       applyForce(steeringForce);
     } else {
       // implement wander
-      PVector cast = PVector.add(position, velocity);
-      cast.normalize();
-      cast.mult(floor(random(0, 10)));
-      println("cast: " + cast + " position: " + position + " velocity: " + velocity);
-      println("PI: " + PI + " PI/2: " + PI/2 + " PI/4: " + PI/4);
+      if (count == 0 || count % wanderFrequency == 0) {
+        PVector wander = new PVector(random(-1, 1), random(-1, 1));
+        wander.normalize();
+        wander.mult(maxSpeed);
+        PVector steeringForce = PVector.sub(wander, velocity);
+        steeringForce.limit(maxForce);
+        // apply
+        applyForce(steeringForce);
+      }
+      if (count == wanderFrequency+1) {
+        count = 0;
+      } else {
+        count++;
+      }
     }
   }
 
@@ -115,20 +146,35 @@ class Vehicle {
       float colourB = map(health, 0, MAX_HEALTH, 50, 150);
       float theta = velocity.heading() + PI/2;
       pushMatrix();
+      stroke(1);
+      //beginShape();
+      //for (int i = 0; i < history.size(); i++) {
+      //  curveVertex(history.get(i).x, history.get(i).y);
+      //  println(history.get(i).x + "    " + history.get(i).y);
+      //}
+      //endShape();
       translate(position.x, position.y);
       rotate(theta);
       stroke(colourR, colourG, colourB);
-      strokeWeight(3);
-      line(0, visionRadius/2, 0, -visionRadius/2);
-      arc(0, 0, visionRadius*2, visionRadius*2, PI, TWO_PI);
-      strokeWeight(1);
-      stroke(1);
-      fill(colourR, colourG, colourB);
+      //strokeWeight(3);
+      //line(0, visionRadius/2, 0, -visionRadius/2);      
+      //noFill();
+      //arc(0, 0, visionRadius*2, visionRadius*2, PI, TWO_PI);
+      //strokeWeight(1);
+      //stroke(1);
+      //fill(colourR, colourG, colourB);
+      //text("id: " + vID, 10, 10);      
       beginShape();
       vertex(0, -r*2);
       vertex(-r, r*2);
       vertex(r, r*2);
       endShape(CLOSE);
+      //beginShape();
+      //for (int i = 0; i < history.size(); i++) {
+      //  curveVertex(history.get(i).x, history.get(i).y);
+      //  println(history.get(i).x + "    " + history.get(i).y);
+      //}
+      //endShape();
       popMatrix();
     }
   }

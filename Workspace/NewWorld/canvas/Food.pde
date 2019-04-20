@@ -14,20 +14,6 @@ class Food {
     r = (map(random(0.0, nutrition ), 0.0, nutrition, 0.0, 50.0));
   }
 
-  void run() {
-    show();
-  }
-
-  void checkCollision(Vehicle vehicle) {
-    // Food keeps track of whether it has been eaten
-    PVector f = PVector.sub(position, vehicle.position);
-    if (f.mag() < r * 0.85) {      
-      eaten = true;
-      // Vehicles health is replenished 
-      vehicle.addHealth(nutrition);
-    }
-  }
-
   void show() {
     if (!eaten ) {
       noStroke();
